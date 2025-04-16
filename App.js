@@ -13,9 +13,9 @@ import {
 
 export default function App() {
   const [diceNumber, setDiceNumber] = useState(0);
-  const [showGlitter, setShowGlitter] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const shakeAnim = useState(new Animated.Value(0))[0];
-  const glitterAnim = useState(new Animated.Value(0))[0];
+  const confettiAnim = useState(new Animated.Value(0))[0];
 
   const diceImages = [
     require('./assets/dice1.png'),
@@ -27,7 +27,7 @@ export default function App() {
   ];
 
   const rollDice = () => {
-    setShowGlitter(false); // döljer glitter först
+    setShowConfetti(false);
 
     Animated.sequence([
       Animated.timing(shakeAnim, {
@@ -50,18 +50,18 @@ export default function App() {
       setDiceNumber(randomNumber);
 
       if (randomNumber === 5) {
-        // visa glitter om det blev 6 (index 5)
-        setShowGlitter(true);
-        glitterAnim.setValue(0);
-        Animated.timing(glitterAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }).start(() => {
-          setTimeout(() => {
-            setShowGlitter(false); // ta bort glitter efter en stund
-          }, 1000);
-        });
+        setShowConfetti(true);
+        confettiAnim.setValue(1); 
+
+        setTimeout(() => {
+          Animated.timing(confettiAnim, {
+            toValue: 0, 
+            duration: 1000,
+            useNativeDriver: true,
+          }).start(() => {
+            setShowConfetti(false);
+          });
+        }, 1500);
       }
     });
   };
@@ -78,8 +78,7 @@ export default function App() {
       styles.title
     } > 🎲Tärningskastare🎲 </Text>
 
-    <
-    Animated.Image source = {
+    <Animated.Image source = {
       diceImages[diceNumber]
     }
     style = {
@@ -98,21 +97,15 @@ export default function App() {
     />
 
     {
-      showGlitter && ( <
-        Animated.Image source = {
-          require('./assets/glitter.png')
+      showConfetti && ( 
+        <Animated.Image source = {
+          require('./assets/confetti.gif')
         }
         style = {
           [
-            styles.glitter,
+            styles.confetti,
             {
-              opacity: glitterAnim,
-              transform: [{
-                scale: glitterAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.7, 1.3],
-                }),
-              }, ],
+              opacity: confettiAnim,
             },
           ]
         }
@@ -159,12 +152,13 @@ const styles = StyleSheet.create({
     height: 150,
     marginBottom: 30,
   },
-  glitter: {
+  confetti: {
     position: 'absolute',
-    width: 250,
-    height: 250,
-    top: '35%',
-    zIndex: 10,
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 999,
   },
   button: {
     backgroundColor: '#307470',
